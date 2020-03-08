@@ -73,10 +73,10 @@ public class Pbft {
          * so that other nodes can obtain ws of the node.
          */
         PbftMsgModel toAll = new PbftMsgModel();
-        toAll.setMsgType(MsgEnum.detective);
+        toAll.setMsgType(MsgEnum.note);
         AddrPortModel ap = new AddrPortModel();
-        ap.setAddr(ws.getRemoteSocketAddress().getAddress().toString());
-        ap.setPort(ws.getRemoteSocketAddress().getPort());
+        ap.setAddr(msgs.getAp().getAddr());
+        ap.setPort(msgs.getAp().getPort());
         toAll.setAp(ap);
         P2pServerEnd.broadcasts(gson.toJson(toAll));
     }
@@ -155,10 +155,10 @@ public class Pbft {
          * The purpose is for the client to receive the receipt finally.
          */
         PbftMsgModel toAllServer = new PbftMsgModel();
-        toAllServer.setMsgType(MsgEnum.detective);
+        toAllServer.setMsgType(MsgEnum.note);
         AddrPortModel ap = new AddrPortModel();
-        ap.setAddr(ws.getRemoteSocketAddress().getAddress().toString());
-        ap.setPort(ws.getRemoteSocketAddress().getPort());
+        ap.setAddr(msgs.getAp().getAddr());
+        ap.setPort(msgs.getAp().getPort());
         toAllServer.setAp(ap);
         P2pServerEnd.broadcasts(gson.toJson(toAllServer));
     }
