@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +50,43 @@ public class SocketCache {
      * Send it to all active service nodes to verify the qualification of the remaining service nodes.
      */
     public static List<ServerNodeModel> listServer = Lists.newArrayList();
+    
+    public static synchronized boolean contain(String wsUrl) {
+        if (wss.isEmpty()) {
+            return false;
+        }
+        InetSocketAddress isa = null;
+        Integer itg = null;
+        String ipAddr = null;
+        for (WebSocket ws : wss) {
+            isa = ws.getRemoteSocketAddress();
+            if (isa == null) {
+                return false;
+            }
+            ipAddr = isa.getAddress().toString();
+            itg = Integer.valueOf(wsUrl.substring(4).split(":")[1]);
+            if (ipAddr.equals(wsUrl.substring(4).split(":")[0])
+                    && itg == isa.getPort()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static synchronized void remove(String wsUrl) {
+        InetSocketAddress isa = null;
+        Integer itg = null;
+        String ipAddr = null;
+        for (WebSocket ws : wss) {
+            isa = ws.getRemoteSocketAddress();
+            ipAddr = isa.getAddress().toString();
+            itg = Integer.valueOf(wsUrl.substring(4).split(":")[1]);
+            if (ipAddr.equals(wsUrl.substring(4).split(":")[0])
+                    && itg == isa.getPort()) {
+                wss.remove(ws);
+            }
+        }
+    }
     
     /**
      * Initialize meta based on files or databases.
@@ -139,7 +177,6 @@ public class SocketCache {
     public static MetaModel getAndMinus() {
         synchronized (SocketCache.class) {
             MetaModel meta = metaModel;
-            metaModel.setIndex(metaModel.getIndex() - 1);
             metaModel.setSize(metaModel.getSize() - 1);
             metaModel.setMaxf((metaModel.getSize() - 1) / 3);
             return meta;
@@ -158,7 +195,6 @@ public class SocketCache {
     
     public static MetaModel minusAndGet() {
         synchronized (SocketCache.class) {
-            metaModel.setIndex(metaModel.getIndex() - 1);
             metaModel.setSize(metaModel.getSize() - 1);
             metaModel.setMaxf((metaModel.getSize() - 1) / 3);
             return metaModel;

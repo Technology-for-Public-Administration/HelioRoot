@@ -1,6 +1,5 @@
 package tech.feily.unistarts.heliostration.helioroot.pbft;
 
-import org.apache.log4j.Logger;
 import org.java_websocket.WebSocket;
 
 import com.google.gson.Gson;
@@ -13,6 +12,7 @@ import tech.feily.unistarts.heliostration.helioroot.model.ServerNodeModel;
 import tech.feily.unistarts.heliostration.helioroot.p2p.P2pClientEnd;
 import tech.feily.unistarts.heliostration.helioroot.p2p.P2pServerEnd;
 import tech.feily.unistarts.heliostration.helioroot.p2p.SocketCache;
+import tech.feily.unistarts.heliostration.helioroot.utils.SystemUtil;
 
 /**
  * PBFT algorithm of P2P network.
@@ -21,8 +21,7 @@ import tech.feily.unistarts.heliostration.helioroot.p2p.SocketCache;
  * @version v0.1
  */
 public class Pbft {
-
-    private Logger log = Logger.getLogger(Pbft.class);
+    
     private Gson gson = new Gson();
     private int port;
 
@@ -49,9 +48,10 @@ public class Pbft {
      * @param msg
      */
     public void handle(WebSocket ws, String msg) {
-        log.info("From " + ws.getRemoteSocketAddress().getAddress().toString() + ":"
-                + ws.getRemoteSocketAddress().getPort() + ", message is " + msg);
+        //log.info("From " + ws.getRemoteSocketAddress().getAddress().toString() + ":"
+                //+ ws.getRemoteSocketAddress().getPort() + ", message is " + msg);
         PbftMsgModel msgs = gson.fromJson(msg, PbftMsgModel.class);
+        SystemUtil.printlnIn(msgs);
         switch (msgs.getMsgType()) {
             case hello :
                 onHello(ws, msgs);
@@ -85,7 +85,6 @@ public class Pbft {
          * Nothing to do, because we just want to acquire ws of client.
          * When the client requests this node through the p2pclientend class, we have obtained the WS of the client.
          */
-        System.out.println("Current P2P network metadata: " + SocketCache.get().toString());
     }
 
     /**
@@ -105,7 +104,7 @@ public class Pbft {
         toServer.setMsgType(MsgEnum.service);
         toServer.setMeta(SocketCache.increAndGet());
         toServer.setListServer(SocketCache.listServer);
-        P2pServerEnd.broadcasts(gson.toJson(toServer));
+        P2pServerEnd.broadcasts(gson.toJson(toServer), msgs);
         /**
          * Broadcast the address of the newly added node to all nodes,
          * so that other nodes can obtain ws of the node.
@@ -116,7 +115,8 @@ public class Pbft {
         ap.setAddr(msgs.getAp().getAddr());
         ap.setPort(msgs.getAp().getPort());
         toAll.setAp(ap);
-        P2pServerEnd.broadcasts(gson.toJson(toAll));
+        msgs.setMsgType(MsgEnum.note);
+        P2pServerEnd.broadcasts(gson.toJson(toAll), msgs);
         /**
          * Send a probe message to the service node server.
          * so that the service node server can save ws of the root node.
@@ -126,7 +126,8 @@ public class Pbft {
         ap.setAddr(ws.getLocalSocketAddress().getAddress().toString());
         ap.setPort(port);
         toThis.setAp(ap);
-        P2pClientEnd.connect(this, "ws:/" + msgs.getAp().getAddr() + ":" + msgs.getAp().getPort(), gson.toJson(toThis), port);
+        msgs.setMsgType(MsgEnum.detective);
+        P2pClientEnd.connect(this, "ws:/" + msgs.getAp().getAddr() + ":" + msgs.getAp().getPort(), gson.toJson(toThis), msgs);
     }
 
     /**
@@ -159,7 +160,8 @@ public class Pbft {
         serModel.setAccessKey(SocketCache.servers.get(msgs.getServer().getServerId()).getAccessKey());
         serModel.setServerId(msgs.getServer().getServerId());
         toServer.setServer(serModel);
-        P2pServerEnd.sendMsg(ws, gson.toJson(toServer));
+        msgs.setMsgType(MsgEnum.init);
+        P2pServerEnd.sendMsg(ws, gson.toJson(toServer), msgs);
         /**
          * The address of the service node cannot be broadcasted in the whole network,
          * because it does not have the service capability.
@@ -197,7 +199,9 @@ public class Pbft {
         cliModel.setAccessKey(SocketCache.clients.get(msgs.getClient().getClientId()).getAccessKey());
         cliModel.setClientId(msgs.getClient().getClientId());
         toClient.setClient(cliModel);
-        P2pServerEnd.sendMsg(ws, gson.toJson(toClient));
+        toClient.setMeta(SocketCache.get());
+        msgs.setMsgType(MsgEnum.hello);
+        P2pServerEnd.sendMsg(ws, gson.toJson(toClient), msgs);
         /**
          * Broadcast the address and port of the client to the service node.
          * The purpose is for the client to receive the receipt finally.
@@ -208,7 +212,8 @@ public class Pbft {
         ap.setAddr(msgs.getAp().getAddr());
         ap.setPort(msgs.getAp().getPort());
         toAllServer.setAp(ap);
-        P2pServerEnd.broadcasts(gson.toJson(toAllServer));
+        msgs.setMsgType(MsgEnum.note);
+        P2pServerEnd.broadcasts(gson.toJson(toAllServer), msgs);
     }
 
     /**

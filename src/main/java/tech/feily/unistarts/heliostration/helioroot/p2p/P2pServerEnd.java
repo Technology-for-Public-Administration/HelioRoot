@@ -2,12 +2,16 @@ package tech.feily.unistarts.heliostration.helioroot.p2p;
 
 import java.net.InetSocketAddress;
 
-import org.apache.log4j.Logger;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
+import com.google.gson.Gson;
+
+import tech.feily.unistarts.heliostration.helioroot.model.MsgEnum;
+import tech.feily.unistarts.heliostration.helioroot.model.PbftMsgModel;
 import tech.feily.unistarts.heliostration.helioroot.pbft.Pbft;
+import tech.feily.unistarts.heliostration.helioroot.utils.SystemUtil;
 
 /**
  * The server program of P2P node.
@@ -17,7 +21,8 @@ import tech.feily.unistarts.heliostration.helioroot.pbft.Pbft;
  */
 public class P2pServerEnd {
 
-    private static Logger log = Logger.getLogger(P2pServerEnd.class);
+    //private static Logger log = Logger.getLogger(P2pServerEnd.class);
+    private static Gson gson = new Gson();
     
     /**
      * The method of starting node service in P2P network(as server).
@@ -30,7 +35,9 @@ public class P2pServerEnd {
 
             @Override
             public void onOpen(WebSocket ws, ClientHandshake handshake) {
-                SocketCache.wss.add(ws);
+                if (!SocketCache.wss.contains(ws)) {
+                    SocketCache.wss.add(ws);
+                }
             }
 
             @Override
@@ -42,8 +49,13 @@ public class P2pServerEnd {
                     SocketCache.minusAndGet();
                     SocketCache.wss.remove(ws);
                 }
-                System.out.println(SocketCache.get().toString());
-                log.info("Client close!");
+                PbftMsgModel msg = new PbftMsgModel();
+                msg.setMsgType(MsgEnum.update);
+                msg.setMeta(SocketCache.get());
+                PbftMsgModel pm = new PbftMsgModel();
+                pm.setMsgType(MsgEnum.update);
+                broadcasts(gson.toJson(msg), pm);
+                //log.info("Client close!");
             }
 
             @Override
@@ -60,19 +72,28 @@ public class P2pServerEnd {
                     SocketCache.minusAndGet();
                     SocketCache.wss.remove(ws);
                 }
-                System.out.println(SocketCache.get().toString());
-                log.info("Client connection error!" + ex.getMessage());
+                PbftMsgModel msg = new PbftMsgModel();
+                msg.setMsgType(MsgEnum.update);
+                msg.setMeta(SocketCache.get());
+                PbftMsgModel pm = new PbftMsgModel();
+                pm.setMsgType(MsgEnum.update);
+                broadcasts(gson.toJson(msg), pm);
+                //log.info("Client connection error!");
             }
 
             @Override
             public void onStart() {
-                System.out.println(SocketCache.get().toString());
-                log.info("Server start successfully!");
+                //log.info("Server start successfully!");
+                System.out.println("Server start successfully!");
+                System.out.println("------------------------------------------------------------------------------------");
+                SystemUtil.printHead();
             }
             
         };
         socketServer.start();
-        log.info("server listen port " + port);
+        //log.info("server listen port " + port);
+        System.out.println("Root node starting...");
+        System.out.println("server listen port " + port);
     }
     
     /**
@@ -81,10 +102,12 @@ public class P2pServerEnd {
      * @param ws - websocket
      * @param msg - Messages to send.
      */
-    public static void sendMsg(WebSocket ws, String msg) {
-        log.info("To " + ws.getRemoteSocketAddress().getAddress().toString() + ":"
-                + ws.getRemoteSocketAddress().getPort() + " : " + msg.toString());
+    public static void sendMsg(WebSocket ws, String msg, PbftMsgModel pm) {
+        //System.out.println(msg);
+        //log.info("To " + ws.getRemoteSocketAddress().getAddress().toString() + ":"
+                //+ ws.getRemoteSocketAddress().getPort() + " : " + msg.toString());
         ws.send(msg);
+        SystemUtil.printlnOut(pm);
     }
     
     /**
@@ -92,15 +115,15 @@ public class P2pServerEnd {
      * 
      * @param msg - Messages to send.
      */
-    public static void broadcasts(String msg) {
+    public static void broadcasts(String msg, PbftMsgModel pm) {
         if (SocketCache.wss.size() == 0 || msg == null || msg.equals("")) {
             return;
         }
-        log.info("Glad to say broadcast to clients being startted!");
+        //log.info("Glad to say broadcast to clients being startted!");
         for (WebSocket ws : SocketCache.wss) {
-            sendMsg(ws, msg);
+            sendMsg(ws, msg, pm);
         }
-        log.info("Glad to say broadcast to clients being overred!");
+        //log.info("Glad to say broadcast to clients being overred!");
     }
 
 }
