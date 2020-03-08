@@ -9,7 +9,8 @@ import tech.feily.unistarts.heliostration.helioroot.pbft.Pbft;
  */
 public class App {
     public static void main(String[] args) {
-        Pbft pbft = new Pbft();
-        P2pServerEnd.run(pbft, 7001);
+        int port = 7001;
+        Pbft pbft = new Pbft(port);
+        P2pServerEnd.run(pbft, port);
     }
 }

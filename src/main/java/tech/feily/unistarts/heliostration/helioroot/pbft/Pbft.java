@@ -10,6 +10,7 @@ import tech.feily.unistarts.heliostration.helioroot.model.ClientNodeModel;
 import tech.feily.unistarts.heliostration.helioroot.model.MsgEnum;
 import tech.feily.unistarts.heliostration.helioroot.model.PbftMsgModel;
 import tech.feily.unistarts.heliostration.helioroot.model.ServerNodeModel;
+import tech.feily.unistarts.heliostration.helioroot.p2p.P2pClientEnd;
 import tech.feily.unistarts.heliostration.helioroot.p2p.P2pServerEnd;
 import tech.feily.unistarts.heliostration.helioroot.p2p.SocketCache;
 
@@ -17,11 +18,13 @@ public class Pbft {
 
     private Logger log = Logger.getLogger(Pbft.class);
     private Gson gson = new Gson();
+    private int port;
     
     /**
      * When the root node is started, the cache information of the root node is initialized here.
      */
-    public Pbft() {
+    public Pbft(int port) {
+        this.port = port;
         /**
          * Initialize SocketCache.
          */
@@ -45,9 +48,20 @@ public class Pbft {
             case service :
                 onService(ws, msgs);
                 break;
+            case confirm :
+                onConfirm(ws, msgs);
+                break;
             default:
                 break;
         }
+    }
+
+    private void onConfirm(WebSocket ws, PbftMsgModel msgs) {
+        /**
+         * Nothing to do, because we just want to acquire ws of client.
+         * When the client requests this node through the p2pclientend class, we have obtained the WS of the client.
+         */
+        System.out.println("Current P2P network metadata: " + SocketCache.get().toString());
     }
 
     /**
@@ -79,6 +93,16 @@ public class Pbft {
         ap.setPort(msgs.getAp().getPort());
         toAll.setAp(ap);
         P2pServerEnd.broadcasts(gson.toJson(toAll));
+        /**
+         * Send a probe message to the service node server.
+         * so that the service node server can save ws of the root node.
+         */
+        PbftMsgModel toThis = new PbftMsgModel();
+        toThis.setMsgType(MsgEnum.detective);
+        ap.setAddr(ws.getLocalSocketAddress().getAddress().toString());
+        ap.setPort(port);
+        toThis.setAp(ap);
+        P2pClientEnd.connect(this, "ws:/" + msgs.getAp().getAddr() + ":" + msgs.getAp().getPort(), gson.toJson(toThis), port);
     }
 
     /**
