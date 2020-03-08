@@ -14,14 +14,22 @@ import tech.feily.unistarts.heliostration.helioroot.p2p.P2pClientEnd;
 import tech.feily.unistarts.heliostration.helioroot.p2p.P2pServerEnd;
 import tech.feily.unistarts.heliostration.helioroot.p2p.SocketCache;
 
+/**
+ * PBFT algorithm of P2P network.
+ * 
+ * @author Feily Zhang
+ * @version v0.1
+ */
 public class Pbft {
 
     private Logger log = Logger.getLogger(Pbft.class);
     private Gson gson = new Gson();
     private int port;
-    
+
     /**
      * When the root node is started, the cache information of the root node is initialized here.
+     * 
+     * @param port
      */
     public Pbft(int port) {
         this.port = port;
@@ -33,7 +41,13 @@ public class Pbft {
         SocketCache.initClients();
         SocketCache.initlistServer();
     }
-    
+
+    /**
+     * The entrance of pbft algorithm.
+     * 
+     * @param ws
+     * @param msg
+     */
     public void handle(WebSocket ws, String msg) {
         log.info("From " + ws.getRemoteSocketAddress().getAddress().toString() + ":"
                 + ws.getRemoteSocketAddress().getPort() + ", message is " + msg);
@@ -51,11 +65,21 @@ public class Pbft {
             case confirm :
                 onConfirm(ws, msgs);
                 break;
+            /**
+             * The above is the handshake process in the network establishment stage.
+             */
             default:
                 break;
         }
     }
 
+    /**
+     * The other party will send confirmation to its own detection message.
+     * The confirm message of the other party is processed here.
+     * 
+     * @param ws
+     * @param msgs
+     */
     private void onConfirm(WebSocket ws, PbftMsgModel msgs) {
         /**
          * Nothing to do, because we just want to acquire ws of client.
@@ -117,7 +141,7 @@ public class Pbft {
     }
 
     /**
-     * 
+     * When connecting with the service node for the first time, reply the accessKey to it.
      * 
      * @param ws
      * @param msgs

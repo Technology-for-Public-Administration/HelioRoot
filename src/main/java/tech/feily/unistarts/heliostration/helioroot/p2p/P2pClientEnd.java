@@ -23,7 +23,10 @@ public class P2pClientEnd {
     /**
      * Client connects to a server.
      * 
-     * @param wsUrl - server's url.
+     * @param pbft
+     * @param wsUrl
+     * @param msg
+     * @param port
      */
     public static void connect(final Pbft pbft, String wsUrl, final String msg, final int port) {
         try {
@@ -58,8 +61,8 @@ public class P2pClientEnd {
     /**
      * The method of sending a message to a server.
      * 
-     * @param ws - websocket
-     * @param msg - Messages to send.
+     * @param ws
+     * @param msg
      */
     public static void sendMsg(WebSocket ws, String msg) {
         ws.send(msg);

@@ -1,5 +1,11 @@
 package tech.feily.unistarts.heliostration.helioroot.model;
 
+/**
+ * Permission class of client.
+ * 
+ * @author Feily Zhang
+ * @version v0.1
+ */
 public class ClientNodeModel {
 
     private String clientId;

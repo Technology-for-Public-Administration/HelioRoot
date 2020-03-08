@@ -2,6 +2,12 @@ package tech.feily.unistarts.heliostration.helioroot.model;
 
 import java.util.List;
 
+/**
+ * Message entity class of PBFT algorithm in the P2P network.
+ * 
+ * @author Feily Zhang
+ * @version v0.1
+ */
 public class PbftMsgModel {
 
     private MsgEnum msgType;
