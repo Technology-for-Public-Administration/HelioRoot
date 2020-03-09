@@ -39,7 +39,7 @@ public class SystemUtil {
     public static void printlnOut(PbftMsgModel msg) {
         switch (msg.getMsgType()) {
             case hello :
-               println("out - [hello]      | no  | client node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
+                println("out - [hello]     | no  | client node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
                         + " response accessKey.");
                break;
             case init :
