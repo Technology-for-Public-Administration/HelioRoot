@@ -7,11 +7,13 @@ import com.google.gson.Gson;
 import tech.feily.unistarts.heliostration.helioroot.model.AddrPortModel;
 import tech.feily.unistarts.heliostration.helioroot.model.ClientNodeModel;
 import tech.feily.unistarts.heliostration.helioroot.model.MsgEnum;
+import tech.feily.unistarts.heliostration.helioroot.model.PbftContentModel;
 import tech.feily.unistarts.heliostration.helioroot.model.PbftMsgModel;
 import tech.feily.unistarts.heliostration.helioroot.model.ServerNodeModel;
 import tech.feily.unistarts.heliostration.helioroot.p2p.P2pClientEnd;
 import tech.feily.unistarts.heliostration.helioroot.p2p.P2pServerEnd;
 import tech.feily.unistarts.heliostration.helioroot.p2p.SocketCache;
+import tech.feily.unistarts.heliostration.helioroot.utils.SHAUtil;
 import tech.feily.unistarts.heliostration.helioroot.utils.SystemUtil;
 
 /**
@@ -68,9 +70,42 @@ public class Pbft {
             /**
              * The above is the handshake process in the network establishment stage.
              */
+            case request :
+                onRequest(ws, msgs);
+                break;
+            case prepare :
+            case commit :
+                 break;
             default:
                 break;
         }
+    }
+
+    /**
+     * If a request from the client is received, execute this method.
+     * 
+     * @param ws
+     * @param msgs
+     */
+    private void onRequest(WebSocket ws, PbftMsgModel msgs) {
+        if (!reqIsValid(msgs.getPcm()) || !containClient(msgs.getClient()) ) {
+            return; 
+        }
+        PbftContentModel pcm = msgs.getPcm();
+        pcm.setReqNum(SocketCache.ai.getAndIncrement());
+        pcm.setViewNum(SocketCache.get().getView());
+        msgs.setPcm(pcm);
+        msgs.setMsgType(MsgEnum.prePrepare);
+        P2pServerEnd.broadcasts(gson.toJson(msgs), msgs);
+    }
+
+    /**
+     * 
+     * @param pcm
+     * @return
+     */
+    private boolean reqIsValid(PbftContentModel pcm) {
+        return SHAUtil.sha256BasedHutool(pcm.getTransaction().toString()).equals(pcm.getDigest());
     }
 
     /**

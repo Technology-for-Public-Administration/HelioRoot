@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.java_websocket.WebSocket;
 
@@ -36,6 +37,8 @@ public class SocketCache {
 
     public static Set<AddrPortModel> aps = Sets.newConcurrentHashSet();
 
+    public static AtomicInteger ai = new AtomicInteger(0);
+    
     public static synchronized boolean contain(String wsUrl) {
         for (AddrPortModel ap : aps) {
             if (ap.getAddr().equals(wsUrl.substring(4).split(":")[0])

@@ -5,9 +5,7 @@ import java.util.Date;
 import tech.feily.unistarts.heliostration.helioroot.model.PbftMsgModel;
 
 public class SystemUtil {
-
-    private static Date date = new Date();
-
+    
     public static void printHead() {
         System.out.println("  Time   |      MsgType      | Bc  |                     Details                     ");
         System.out.println("-------------------------------------------------------------------------------------");
@@ -17,19 +15,31 @@ public class SystemUtil {
         switch (msg.getMsgType()) {
             case hello :
                 println("in  - [hello]     | no  | client node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
-                        + " request accessKey.");
-               break;
+                         + " $ request accessKey.");
+                break;
             case init :
                 println("in  - [init]      | no  | service node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
-                         + " request accessKey.");
+                         + " $ request accessKey.");
                 break;
             case service :
                 println("in  - [service]   | no  | service node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
-                         + " request metadata & session credentials of all service nodes.");
+                         + " $ request metadata & session credentials of all service nodes.");
                 break;
             case confirm :
                 println("in  - [confirm]   | no  | service node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
-                         + " WebSocket of root node has been saved.");
+                         + " $ WebSocket of root node has been saved.");
+                break;
+            case request :
+                println("in  - [request]   | yes | client node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
+                         + " $ request package transaction.");
+                break;
+            case prepare :
+                println("in  - [prepare]   | yes | service node@" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
+                         + " $ receive prepare msg.");
+                break;
+            case commit :
+                println("in  - [commit]    | yes | service node@" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
+                         + " $ receive commit msg.");
                 break;
             default:
                 break;
@@ -40,24 +50,27 @@ public class SystemUtil {
         switch (msg.getMsgType()) {
             case hello :
                 println("out - [hello]     | no  | client node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
-                        + " response accessKey.");
-               break;
+                        + " $ response accessKey.");
+                break;
             case init :
                 println("out - [init]      | no  | service node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
-                         + " response accessKey.");
+                         + " $ response accessKey.");
                 break;
             case service :
-                println("out - [service]   | no  | @all" + " broadcast metadata & session credentials of all service nodes.");
+                println("out - [service]   | no  | @all" + " $ broadcast metadata & session credentials of all service nodes.");
                 break;
             case note :
-                println("out - [note]      | no  | @all" + " broadcast the address of the newly added node.");
+                println("out - [note]      | no  | @all" + " $ broadcast the address of the newly added node.");
                 break;
             case detective :
                 println("out - [detective] | no  | service node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
-                        + " send detection packet.");
+                        + " $ send detection packet.");
                 break;
             case update :
-                println("out - [update]    | no  | @all" + " update their metadata.");
+                println("out - [update]    | no  | @all" + " $ update their metadata.");
+                break;
+            case prePrepare :
+                println("out - [prepre]    | yes | @all" + " $ broadcast pre-prepare msg.");
                 break;
             default:
                 break;
@@ -67,13 +80,13 @@ public class SystemUtil {
     public static void printlnClientCloseOrError(PbftMsgModel msg, String wsUrl) {
         switch (msg.getMsgType()) {
             case close :
-                println("    - [close]     | no  | node @" + wsUrl.substring(4) + " closed.");
+                println("    - [close]     | no  | node @" + wsUrl.substring(4) + " $ closed.");
                 break;
             case error :
-                println("    - [error]     | no  | node @" + wsUrl.substring(4) + " occurs error.");
+                println("    - [error]     | no  | node @" + wsUrl.substring(4) + " $ occurs error.");
                 break;
             case exception :
-                println("    - [exception] | no  | node @" + wsUrl.substring(4) + " exception.");
+                println("    - [exception] | no  | node @" + wsUrl.substring(4) + " $ exception.");
                 break;
             default:
                 break;
@@ -83,6 +96,7 @@ public class SystemUtil {
     
     @SuppressWarnings("deprecation")
     public static void println(String line) {
+        Date date = new Date();
         System.out.println(date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + " | " + line);
     }
     
