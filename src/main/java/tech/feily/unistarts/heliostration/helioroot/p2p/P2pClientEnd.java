@@ -60,7 +60,7 @@ public class P2pClientEnd {
                     msg.setMeta(SocketCache.get());
                     PbftMsgModel pm = new PbftMsgModel();
                     pm.setMsgType(MsgEnum.update);
-                    broadcasts(gson.toJson(msg), pm);
+                    P2pServerEnd.broadcasts(gson.toJson(msg), pm);
 
                     PbftMsgModel psm = new PbftMsgModel();
                     psm.setMsgType(MsgEnum.close);
@@ -81,7 +81,7 @@ public class P2pClientEnd {
                     msg.setMeta(SocketCache.get());
                     PbftMsgModel pm = new PbftMsgModel();
                     pm.setMsgType(MsgEnum.update);
-                    broadcasts(gson.toJson(msg), pm);
+                    P2pServerEnd.broadcasts(gson.toJson(msg), pm);
                     
                     PbftMsgModel psm = new PbftMsgModel();
                     psm.setMsgType(MsgEnum.error);

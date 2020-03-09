@@ -97,6 +97,9 @@ public class Pbft {
         if (!isValid(msgs.getServer())) {
             return;
         }
+        if (!SocketCache.aps.contains(msgs.getAp())) {
+            SocketCache.aps.add(msgs.getAp());
+        }
         /**
          * Broadcast new P2P network state in the whole network.
          */

@@ -6,9 +6,6 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
-import com.google.gson.Gson;
-
-import tech.feily.unistarts.heliostration.helioroot.model.MsgEnum;
 import tech.feily.unistarts.heliostration.helioroot.model.PbftMsgModel;
 import tech.feily.unistarts.heliostration.helioroot.pbft.Pbft;
 import tech.feily.unistarts.heliostration.helioroot.utils.SystemUtil;
@@ -22,7 +19,7 @@ import tech.feily.unistarts.heliostration.helioroot.utils.SystemUtil;
 public class P2pServerEnd {
 
     //private static Logger log = Logger.getLogger(P2pServerEnd.class);
-    private static Gson gson = new Gson();
+    //private static Gson gson = new Gson();
     
     /**
      * The method of starting node service in P2P network(as server).
@@ -45,6 +42,8 @@ public class P2pServerEnd {
                 /**
                  * Active node minus one after disconnection.
                  */
+                /**
+                 * 
                 if (SocketCache.wss.contains(ws)) {
                     SocketCache.minusAndGet();
                     SocketCache.wss.remove(ws);
@@ -55,6 +54,7 @@ public class P2pServerEnd {
                 PbftMsgModel pm = new PbftMsgModel();
                 pm.setMsgType(MsgEnum.update);
                 broadcasts(gson.toJson(msg), pm);
+                 */
                 //log.info("Client close!");
             }
 
@@ -68,6 +68,8 @@ public class P2pServerEnd {
                 /**
                  * Active node minus one after occuring error.
                  */
+                /**
+                 * 
                 if (SocketCache.wss.contains(ws)) {
                     SocketCache.minusAndGet();
                     SocketCache.wss.remove(ws);
@@ -78,6 +80,7 @@ public class P2pServerEnd {
                 PbftMsgModel pm = new PbftMsgModel();
                 pm.setMsgType(MsgEnum.update);
                 broadcasts(gson.toJson(msg), pm);
+                 */
                 //log.info("Client connection error!");
             }
 
