@@ -36,7 +36,8 @@ public class SocketCache {
     public static Set<WebSocket> wss = Sets.newConcurrentHashSet();
 
     public static Set<AddrPortModel> aps = Sets.newConcurrentHashSet();
-
+    public static List<AddrPortModel> apm = Lists.newArrayList();
+    
     public static AtomicInteger ai = new AtomicInteger(0);
     
     public static synchronized boolean contain(String wsUrl) {

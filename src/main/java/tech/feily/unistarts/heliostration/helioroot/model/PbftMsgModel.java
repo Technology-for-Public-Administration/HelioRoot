@@ -17,6 +17,7 @@ public class PbftMsgModel {
     private MetaModel meta;
     private List<ServerNodeModel> listServer;
     private PbftContentModel pcm;
+    private List<AddrPortModel> apm;
     
     /**
      * @return the msgType
@@ -109,12 +110,26 @@ public class PbftMsgModel {
         this.pcm = pcm;
     }
     
+    
+    /**
+     * @return the apm
+     */
+    public List<AddrPortModel> getApm() {
+        return apm;
+    }
+    /**
+     * @param apm the apm to set
+     */
+    public void setApm(List<AddrPortModel> apm) {
+        this.apm = apm;
+    }
+    
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
         str.append("[PbftMsg] msgType = " + msgType.toString() + ", client = " + client.toString()
                 + ", server = " + server.toString() + ", ap = " + ap.toString() + ", meta = " + meta.toString()
-                + ", listServer = " + listServer.toString() + ", pcm = " + pcm.toString());
+                + ", listServer = " + listServer.toString() + ", pcm = " + pcm.toString() + ", apm = " + apm.toString());
         return str.toString();
     }
     

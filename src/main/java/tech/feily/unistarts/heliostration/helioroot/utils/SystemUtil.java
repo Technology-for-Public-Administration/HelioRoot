@@ -31,7 +31,7 @@ public class SystemUtil {
                 break;
             case request :
                 println("in  - [request]   | yes | client node @" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()
-                         + " $ request package transaction.");
+                         + " $ request block to chain.");
                 break;
             case prepare :
                 println("in  - [prepare]   | yes | service node@" + msg.getAp().getAddr() + ":" + msg.getAp().getPort()

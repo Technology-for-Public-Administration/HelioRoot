@@ -129,4 +129,18 @@ public class P2pServerEnd {
         //log.info("Glad to say broadcast to clients being overred!");
     }
 
+    public static void broadcastsDiff(WebSocket wsDif, String msg, String msgDif, PbftMsgModel pm) {
+        if (SocketCache.wss.size() == 0 || msg == null || msg.equals("")) {
+            return;
+        }
+        //log.info("Glad to say broadcast to clients being startted!");
+        for (WebSocket ws : SocketCache.wss) {
+            if (!ws.equals(wsDif)) {
+                sendMsg(ws, msg, pm);
+            } else {
+                sendMsg(ws, msgDif, pm);
+            }
+        }
+        //log.info("Glad to say broadcast to clients being overred!");
+    }
 }

@@ -135,6 +135,9 @@ public class Pbft {
         if (!SocketCache.aps.contains(msgs.getAp())) {
             SocketCache.aps.add(msgs.getAp());
         }
+        if (!SocketCache.apm.contains(msgs.getAp())) {
+            SocketCache.apm.add(msgs.getAp());
+        }
         /**
          * Broadcast new P2P network state in the whole network.
          */
@@ -153,8 +156,11 @@ public class Pbft {
         ap.setAddr(msgs.getAp().getAddr());
         ap.setPort(msgs.getAp().getPort());
         toAll.setAp(ap);
-        msgs.setMsgType(MsgEnum.note);
-        P2pServerEnd.broadcasts(gson.toJson(toAll), msgs);
+        PbftMsgModel toAllDif = new PbftMsgModel();
+        toAllDif.setMsgType(MsgEnum.note);
+        toAllDif.setAp(ap);
+        toAllDif.setApm(SocketCache.apm);
+        P2pServerEnd.broadcastsDiff(ws, gson.toJson(toAll), gson.toJson(toAllDif), toAll);
         /**
          * Send a probe message to the service node server.
          * so that the service node server can save ws of the root node.
@@ -250,8 +256,19 @@ public class Pbft {
         ap.setAddr(msgs.getAp().getAddr());
         ap.setPort(msgs.getAp().getPort());
         toAllServer.setAp(ap);
-        msgs.setMsgType(MsgEnum.note);
-        P2pServerEnd.broadcasts(gson.toJson(toAllServer), msgs);
+        PbftMsgModel toAllDif = new PbftMsgModel();
+        toAllDif.setMsgType(MsgEnum.note);
+        toAllDif.setAp(ap);
+        toAllDif.setApm(SocketCache.apm);
+        P2pServerEnd.broadcastsDiff(ws, gson.toJson(toAllServer), gson.toJson(toAllDif), toAllServer);
+        
+        PbftMsgModel toThis = new PbftMsgModel();
+        toThis.setMsgType(MsgEnum.detective);
+        ap.setAddr(ws.getLocalSocketAddress().getAddress().toString());
+        ap.setPort(port);
+        toThis.setAp(ap);
+        msgs.setMsgType(MsgEnum.detective);
+        P2pClientEnd.connect(this, "ws:/" + msgs.getAp().getAddr() + ":" + msgs.getAp().getPort(), gson.toJson(toThis), msgs);
     }
 
     /**
