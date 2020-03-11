@@ -2,6 +2,12 @@ package tech.feily.unistarts.heliostration.helioroot.model;
 
 import java.util.List;
 
+/**
+ * Data model of pbft consensus stage.
+ * 
+ * @author Feily Zhang
+ * @version v0.1
+ */
 public class PbftContentModel {
 
     private int viewNum;
@@ -22,6 +28,7 @@ public class PbftContentModel {
     public void setViewNum(int viewNum) {
         this.viewNum = viewNum;
     }
+    
     /**
      * @return the reqNum
      */
@@ -35,7 +42,6 @@ public class PbftContentModel {
         this.reqNum = reqNum;
     }
     
-    
     /**
      * @return the transaction
      */
@@ -48,6 +54,7 @@ public class PbftContentModel {
     public void setTransaction(List<String> transaction) {
         this.transaction = transaction;
     }
+    
     /**
      * @return the digest
      */
@@ -73,6 +80,7 @@ public class PbftContentModel {
     public void setAp(AddrPortModel ap) {
         this.ap = ap;
     }
+    
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();

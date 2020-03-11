@@ -1,7 +1,7 @@
 package tech.feily.unistarts.heliostration.helioroot.model;
 
 /**
- * Enumeration of P2P network states.
+ * P2P network and pbft algorithm state enumeration.
  * 
  * @author Feily Zhang
  * @version v0.1

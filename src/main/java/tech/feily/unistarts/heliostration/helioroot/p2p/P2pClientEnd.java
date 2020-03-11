@@ -25,12 +25,12 @@ public class P2pClientEnd {
     private static Gson gson = new Gson();
     
     /**
-     * Client connects to a server.
+     * Client connects to a node server.
      * 
-     * @param pbft
-     * @param wsUrl
-     * @param msg
-     * @param port
+     * @param pbft Pbft consensus algorithm instance.
+     * @param wsUrl Target URL.
+     * @param msg Message entity.
+     * @param pm Parameters for console output.
      */
     public static void connect(final Pbft pbft, final String wsUrl, final String msg, final PbftMsgModel pm) {
         try {
@@ -97,21 +97,23 @@ public class P2pClientEnd {
     }
 
     /**
+     * 
      * The method of sending a message to a server.
      * 
-     * @param ws
-     * @param msg
+     * @param ws WebSocket.
+     * @param msg Messages to send.
+     * @param pm Parameters for console output.
      */
     public static void sendMsg(WebSocket ws, String msg, PbftMsgModel pm) {
         ws.send(msg);
         SystemUtil.printlnOut(pm);
     }
 
-
     /**
      * The method of broadcasting a massage to all server.
      * 
      * @param msg - Messages to send.
+     * @param pm Parameters for console output.
      */
     public static void broadcasts(String msg, PbftMsgModel pm) {
         if (SocketCache.wss.size() == 0 || msg == null || msg.equals("")) {

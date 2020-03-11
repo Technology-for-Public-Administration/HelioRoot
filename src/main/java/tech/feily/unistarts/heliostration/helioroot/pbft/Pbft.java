@@ -50,8 +50,6 @@ public class Pbft {
      * @param msg
      */
     public void handle(WebSocket ws, String msg) {
-        //log.info("From " + ws.getRemoteSocketAddress().getAddress().toString() + ":"
-                //+ ws.getRemoteSocketAddress().getPort() + ", message is " + msg);
         PbftMsgModel msgs = gson.fromJson(msg, PbftMsgModel.class);
         SystemUtil.printlnIn(msgs);
         switch (msgs.getMsgType()) {

@@ -18,14 +18,11 @@ import tech.feily.unistarts.heliostration.helioroot.utils.SystemUtil;
  */
 public class P2pServerEnd {
 
-    //private static Logger log = Logger.getLogger(P2pServerEnd.class);
-    //private static Gson gson = new Gson();
-    
     /**
      * The method of starting node service in P2P network(as server).
      * 
-     * @param pbft
-     * @param port
+     * @param pbft Pbft consensus algorithm instance.
+     * @param port Port on which the server listens.
      */
     public static void run(final Pbft pbft, int port) {
         final WebSocketServer socketServer = new WebSocketServer(new InetSocketAddress(port)) {
@@ -94,7 +91,6 @@ public class P2pServerEnd {
             
         };
         socketServer.start();
-        //log.info("server listen port " + port);
         System.out.println("Root node starting...");
         System.out.println("server listen port " + port);
     }
@@ -104,11 +100,9 @@ public class P2pServerEnd {
      * 
      * @param ws - websocket
      * @param msg - Messages to send.
+     * @param pm Parameters for console output.
      */
     public static void sendMsg(WebSocket ws, String msg, PbftMsgModel pm) {
-        //System.out.println(msg);
-        //log.info("To " + ws.getRemoteSocketAddress().getAddress().toString() + ":"
-                //+ ws.getRemoteSocketAddress().getPort() + " : " + msg.toString());
         ws.send(msg);
         SystemUtil.printlnOut(pm);
     }
@@ -117,23 +111,29 @@ public class P2pServerEnd {
      * The method of broadcasting a massage to all nodes.
      * 
      * @param msg - Messages to send.
+     * @param pm Parameters for console output.
      */
     public static void broadcasts(String msg, PbftMsgModel pm) {
         if (SocketCache.wss.size() == 0 || msg == null || msg.equals("")) {
             return;
         }
-        //log.info("Glad to say broadcast to clients being startted!");
         for (WebSocket ws : SocketCache.wss) {
             sendMsg(ws, msg, pm);
         }
-        //log.info("Glad to say broadcast to clients being overred!");
     }
-
+    
+    /**
+     * The method of broadcasting a massage to different nodes.
+     * 
+     * @param wsDif
+     * @param msg
+     * @param msgDif
+     * @param pm
+     */
     public static void broadcastsDiff(WebSocket wsDif, String msg, String msgDif, PbftMsgModel pm) {
         if (SocketCache.wss.size() == 0 || msg == null || msg.equals("")) {
             return;
         }
-        //log.info("Glad to say broadcast to clients being startted!");
         for (WebSocket ws : SocketCache.wss) {
             if (!ws.equals(wsDif)) {
                 sendMsg(ws, msg, pm);
@@ -141,6 +141,6 @@ public class P2pServerEnd {
                 sendMsg(ws, msgDif, pm);
             }
         }
-        //log.info("Glad to say broadcast to clients being overred!");
     }
+    
 }

@@ -1,7 +1,7 @@
 package tech.feily.unistarts.heliostration.helioroot.model;
 
 /**
- * Metadata of P2P network.
+ * P2P network metadata model。
  * 
  * @author Feily Zhang
  * @version v0.1

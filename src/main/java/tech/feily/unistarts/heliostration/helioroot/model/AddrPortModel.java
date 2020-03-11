@@ -1,7 +1,7 @@
 package tech.feily.unistarts.heliostration.helioroot.model;
 
 /**
- * Port and address class of nodes.
+ * Address and port model of node server。
  * 
  * @author Feily Zhang
  * @version v0.1

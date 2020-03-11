@@ -110,7 +110,6 @@ public class PbftMsgModel {
         this.pcm = pcm;
     }
     
-    
     /**
      * @return the apm
      */

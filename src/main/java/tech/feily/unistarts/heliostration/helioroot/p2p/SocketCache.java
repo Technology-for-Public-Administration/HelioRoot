@@ -23,23 +23,37 @@ import tech.feily.unistarts.heliostration.helioroot.model.MetaModel;
 import tech.feily.unistarts.heliostration.helioroot.model.ServerNodeModel;
 
 /**
- * Thread safe cache static class.
+ * Cache information for the current node and the whole network.
  * 
  * @author Feily zhang
- * @version v.01
+ * @version v0.1
  */
 public class SocketCache {
     
-    /**
-     * Cache all ws connected to this root node
-     */
+    // Cache all ws connected to this root node.
     public static Set<WebSocket> wss = Sets.newConcurrentHashSet();
-
+    // Cache all addresses and ports connecting this node(root node) for updating metadata of p2p network.
     public static Set<AddrPortModel> aps = Sets.newConcurrentHashSet();
+    // Cache all addresses and ports connecting this node(root node) for broadcasting to newly added node.
     public static List<AddrPortModel> apm = Lists.newArrayList();
-    
+    // Request number of pbft message.
     public static AtomicInteger ai = new AtomicInteger(0);
+
+    // Caching metadata for the entire network, direct initialization.
+    private static MetaModel metaModel = null;
+    // Cache all service and user node permissions connected to this root node.
+    public static Map<String, ServerNodeModel> servers = Maps.newConcurrentMap();
+    public static Map<String, ClientNodeModel> clients = Maps.newConcurrentMap();
+    // The simplified version of servers field only keeps the current session credentials.
+    // Send it to all active service nodes to verify the qualification of the remaining service nodes.
+    public static List<ServerNodeModel> listServer = Lists.newArrayList();
     
+    /**
+     * Whether the target server URL exists in aps.
+     * 
+     * @param wsUrl Target URL.
+     * @return true or false.
+     */
     public static synchronized boolean contain(String wsUrl) {
         for (AddrPortModel ap : aps) {
             if (ap.getAddr().equals(wsUrl.substring(4).split(":")[0])
@@ -50,6 +64,11 @@ public class SocketCache {
         return false;
     }
     
+    /**
+     * Remove target URL entity.
+     * 
+     * @param wsUrl
+     */
     public static synchronized void remove(String wsUrl) {
         for (AddrPortModel ap : aps) {
             if (ap.getAddr().equals(wsUrl.substring(4).split(":")[0])
@@ -61,24 +80,6 @@ public class SocketCache {
             }
         }
     }
-    
-    /**
-     * Caching metadata for the entire network, direct initialization.
-     */
-    private static MetaModel metaModel = null;
-    
-    /**
-     * Cache all service and user node permissions connected to this root node.
-     */
-    public static Map<String, ServerNodeModel> servers = Maps.newConcurrentMap();
-    public static Map<String, ClientNodeModel> clients = Maps.newConcurrentMap();
-    
-    /**
-     * The simplified version of servers field only keeps the current session credentials.
-     * Send it to all active service nodes to verify the qualification of the remaining service nodes.
-     */
-    public static List<ServerNodeModel> listServer = Lists.newArrayList();
-    
 
     /**
      * Initialize meta based on files or databases.
@@ -196,4 +197,5 @@ public class SocketCache {
             return metaModel;
         }
     }
+    
 }
