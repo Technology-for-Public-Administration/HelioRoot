@@ -13,6 +13,6 @@ public enum MsgEnum {
     update, close, error,
     exception, request,
     prePrepare, prepare,
-    commit, start;
+    commit, start, reply;
     
 }

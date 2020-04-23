@@ -15,6 +15,10 @@ import tech.feily.unistarts.heliostration.helioroot.p2p.P2pServerEnd;
 import tech.feily.unistarts.heliostration.helioroot.p2p.SocketCache;
 import tech.feily.unistarts.heliostration.helioroot.utils.SHAUtil;
 import tech.feily.unistarts.heliostration.helioroot.utils.SystemUtil;
+import tech.feily.unistarts.heliostration.helioroot.model.BlockModel;
+import tech.feily.unistarts.heliostration.helioroot.pbft.Btc;
+import tech.feily.unistarts.heliostration.helioroot.utils.BlockChain;
+import tech.feily.unistarts.heliostration.helioroot.utils.PreCmd;
 
 /**
  * PBFT algorithm of P2P network.
@@ -74,10 +78,33 @@ public class Pbft {
             case prepare :
             case commit :
                  break;
+            case reply :
+                onReply(ws, msgs);
+                break;
             default:
                 break;
         }
     }
+    
+    private void onReply(WebSocket ws, PbftMsgModel msgs) {
+        if (SocketCache.ack.get() >= msgs.getPcm().getReqNum()) return;
+        if (!SocketCache.comNum.containsKey(msgs.getPcm().getReqNum())) {
+            SocketCache.comNum.put(msgs.getPcm().getReqNum(), 1);
+        } else {
+            SocketCache.comNum.put(msgs.getPcm().getReqNum(), SocketCache.comNum.get(msgs.getPcm().getReqNum()) + 1);
+        }
+        if (SocketCache.comNum.get(msgs.getPcm().getReqNum()) >= (2 * SocketCache.get().getMaxf() + 1)
+                && SocketCache.ack.get() < msgs.getPcm().getReqNum()) {
+            SocketCache.ack.incrementAndGet();
+            if (!PreCmd.getParam().containsKey("hasDb")) {
+                BlockModel block = Btc.beBlock(0, msgs.getPcm().getReqNum(), SocketCache.getPreviousHash(), msgs.getPcm().getTransaction());
+                SocketCache.setPreviousHash(block.getBlockHash());
+                BlockChain.insert(PreCmd.getParam().get("docName"), gson.toJson(block));
+            }
+            SocketCache.comNum.remove(msgs.getPcm().getReqNum());
+        }
+    }
+
 
     /**
      * If a request from the client is received, execute this method.

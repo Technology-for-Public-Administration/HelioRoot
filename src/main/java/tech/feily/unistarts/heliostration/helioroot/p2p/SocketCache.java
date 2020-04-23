@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.filechooser.FileSystemView;
+
 import org.java_websocket.WebSocket;
 
 import com.google.common.collect.Lists;
@@ -19,8 +21,12 @@ import com.google.common.collect.Sets;
 import cn.hutool.crypto.digest.DigestUtil;
 import tech.feily.unistarts.heliostration.helioroot.model.AddrPortModel;
 import tech.feily.unistarts.heliostration.helioroot.model.ClientNodeModel;
+import tech.feily.unistarts.heliostration.helioroot.model.FileModel;
 import tech.feily.unistarts.heliostration.helioroot.model.MetaModel;
 import tech.feily.unistarts.heliostration.helioroot.model.ServerNodeModel;
+import tech.feily.unistarts.heliostration.helioroot.p2p.SocketCache;
+import tech.feily.unistarts.heliostration.helioroot.utils.FileUtils;
+import tech.feily.unistarts.heliostration.helioroot.utils.PreCmd;
 
 /**
  * Cache information for the current node and the whole network.
@@ -47,6 +53,20 @@ public class SocketCache {
     // The simplified version of servers field only keeps the current session credentials.
     // Send it to all active service nodes to verify the qualification of the remaining service nodes.
     public static List<ServerNodeModel> listServer = Lists.newArrayList();
+    
+    public static Map<Integer, Integer> comNum = Maps.newConcurrentMap();
+    public static AtomicInteger ack = new AtomicInteger(-1);
+    private static String previousHash = "00000000000000000000000000000000";
+
+    private static String desktop = FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath();
+
+    public static synchronized void setPreviousHash(String previousHash) {
+        SocketCache.previousHash = previousHash;
+    }
+    
+    public static synchronized String getPreviousHash() {
+        return previousHash;
+    }
     
     /**
      * Whether the target server URL exists in aps.
@@ -88,14 +108,27 @@ public class SocketCache {
         SocketCache.metaModel = new MetaModel(0, 0, 0, 0, true);
     }
     
+    private static void initFile(String fileName) {
+        String line = "";
+        FileModel fm = FileUtils.open(fileName);
+        for (int i = 0; i < Integer.parseInt(PreCmd.getParam().get("SerCli")); i++) {
+            line = "id=" + DigestUtil.md5Hex(String.valueOf(Math.random())).substring(0, 5)
+                    + "&key=" + DigestUtil.md5Hex(String.valueOf(Math.random())).substring(0, 5) + "\n";
+            FileUtils.write(line, fm);
+        }
+        FileUtils.close(fm);
+    }
+    
     /**
      * Initialize servers based on files or databases.
      */
     @SuppressWarnings("resource")
     public static void initServers() {
-        String file = System.getProperty("user.dir") + "\\src\\main\\java\\serverKey.txt";
+        if (!new File(desktop + "\\server.txt").exists()) {
+            initFile(desktop + "\\server.txt");
+        }
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(file)));
+            BufferedReader br = new BufferedReader(new FileReader(new File(desktop + "\\server.txt")));
             String strline = null;
             while ((strline = br.readLine()) != null) {
                 ServerNodeModel server = new ServerNodeModel();
@@ -117,9 +150,11 @@ public class SocketCache {
      */
     @SuppressWarnings("resource")
     public static void initClients() {
-        String file = System.getProperty("user.dir") + "\\src\\main\\java\\clientKey.txt";
+        if (!new File(desktop + "\\client.txt").exists()) {
+            initFile(desktop + "\\client.txt");
+        }
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(file)));
+            BufferedReader br = new BufferedReader(new FileReader(new File(desktop + "\\client.txt")));
             String strline = null;
             while ((strline = br.readLine()) != null) {
                 ClientNodeModel client = new ClientNodeModel();
