@@ -64,4 +64,24 @@
       <version>3.12.2</version>
 	</dependency>
   </dependencies>
+  <build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+                <archive>
+                    <manifest>
+                        <mainClass>tech.feily.unistarts.heliostration.helioroot.App</mainClass>
+                    </manifest>
+                </archive>
+                <descriptorRefs>
+                    <descriptorRef>
+                        jar-with-dependencies
+                    </descriptorRef>
+                </descriptorRefs>
+            </configuration>
+        </plugin>
+    </plugins>
+  </build>
 </project>
